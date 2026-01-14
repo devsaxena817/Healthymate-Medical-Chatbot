@@ -1,150 +1,177 @@
-# 🩺 HealthyMate – Medical Chatbot
+# 🩺 HealthyMate – Medical RAG Chatbot
 
-HealthyMate is an AI-powered medical chatbot designed to provide **basic health guidance, symptom understanding, and medical information** in a simple, user-friendly way. It aims to assist users with preliminary health-related queries while clearly encouraging consultation with qualified healthcare professionals.
+HealthyMate is an AI-powered **medical chatbot** built using **Retrieval-Augmented Generation (RAG)**. It provides accurate, grounded, and safe medical information by answering user queries strictly based on trusted **medical PDF documents**.
+
+The system combines **LangChain**, **Pinecone Vector Database**, **HuggingFace embeddings**, and **Google Gemini LLM**, wrapped in a **Flask web application**.
 
 ---
 
 ## 🚀 Features
 
-* 🤖 AI-based conversational medical assistant
-* 📝 Symptom analysis and health guidance
-* 💊 General information about diseases, medications, and wellness
-* 🧠 Context-aware responses using LLMs
-* 🌐 Web-based interactive interface (Streamlit)
-* 🔐 User-friendly and privacy-conscious design
-
-> ⚠️ **Disclaimer**: HealthyMate is **not a replacement for professional medical advice**. Always consult a certified doctor for diagnosis or treatment.
+* 📄 Answers grounded in **medical PDFs** (no hallucinations)
+* 🔍 Semantic search using **vector embeddings**
+* 🧠 Uses **Gemini LLM** for fast and reliable responses
+* 🛡️ Strong medical safety & hallucination control
+* 💬 Clean chat-based web interface
+* ⚡ Offline indexing + online inference (efficient)
 
 ---
 
-## 🛠️ Tech Stack
-
-* **Frontend**: Streamlit
-* **Backend / AI**: Python, LangChain / LangGraph
-* **LLM**: OpenAI / compatible LLM APIs
-* **Database (optional)**: SQLite / Vector DB (FAISS / Chroma)
-* **Environment**: Python 3.9+
-
----
-
-## 📂 Project Structure
+## 🏗️ Project Architecture
 
 ```
 HealthyMate/
 │
-├── data/                   # Dataset & notebooks used for testing
-├── research/               # Research experiments & analysis
-├── src/                    # Core chatbot logic & modules
-├── static/                 # Static files (CSS, images)
-├── templates/              # HTML templates for web app
+├── data/                  # Medical PDF documents
+├── research/              # Experiments & trials (Jupyter notebook)
+├── src/
+│   ├── __init__.py
+│   ├── helper.py          # PDF loading, chunking, embeddings
+│   └── prompt.py          # System prompt & safety rules
 │
-├── app.py                  # Main web application entry point
-├── store_index.py          # Vector store / index creation script
-├── requirements.txt        # Project dependencies
-├── setup.py                # Package setup configuration
-├── template.sh             # Shell script for setup/automation
-├── .gitignore              # Ignored files
-├── LICENSE                 # License file
-├── README.md               # Project documentation
-└── readme.md               # Backup / merged README
-
-
+├── static/
+│   └── style.css          # UI styling
+├── templates/
+│   └── chat.html          # Chat interface
+│
+├── app.py                 # Flask app (runtime chatbot)
+├── store_index.py         # One-time PDF indexing script
+├── requirements.txt       # Dependencies
+├── setup.py               # Package setup
+└── templates.sh           # Utility script
+```
 
 ---
 
-## ⚙️ Installation & Setup
+## 🔄 Workflow Overview
+
+### 1️⃣ Offline Indexing (Run Once)
+
+Medical PDFs are processed and stored in Pinecone:
+
+* Load PDFs from `data/`
+* Clean and minimize metadata
+* Split text into chunks
+* Generate embeddings using HuggingFace
+* Store vectors in Pinecone
+
+```bash
+python store_index.py
+```
+
+---
+
+### 2️⃣ Online Chat Flow (Runtime)
+
+1. User enters a medical query
+2. Query is embedded using the same embedding model
+3. Pinecone retrieves the most relevant chunks
+4. Retrieved context is injected into a medical-safe prompt
+5. Gemini LLM generates a grounded response
+6. Answer is displayed in the chat UI
+
+---
+
+## 🧠 Core Technologies Used
+
+| Component  | Technology                       |
+| ---------- | -------------------------------- |
+| Backend    | Flask                            |
+| LLM        | Google Gemini (gemini-2.5-flash) |
+| Embeddings | HuggingFace (all-MiniLM-L6-v2)   |
+| Vector DB  | Pinecone                         |
+| Framework  | LangChain                        |
+| Frontend   | HTML, CSS                        |
+
+---
+
+## 🧩 Prompt Safety & Medical Guardrails
+
+HealthyMate strictly follows these rules:
+
+* ✅ Uses **only retrieved medical context**
+* ❌ Does **not guess or hallucinate**
+* 🩺 Provides **educational information only**
+* 📢 Clearly responds with *"I don't know"* if context is missing
+* 👨‍⚕️ Advises consulting medical professionals when needed
+
+---
+
+## ⚙️ Setup & Installation
 
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/HealthyMate.git
+git clone <your-repo-url>
 cd HealthyMate
-````
-
-### 2️⃣ Create Virtual Environment
-
-```bash
-python -m venv venv
-source venv/bin/activate   # Linux / Mac
-venv\Scripts\activate      # Windows
 ```
 
-### 3️⃣ Install Dependencies
+### 2️⃣ Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4️⃣ Environment Variables
+### 3️⃣ Set Environment Variables
 
-Create a `.env` file and add:
+Create a `.env` file:
 
 ```env
-OPENAI_API_KEY=your_api_key_here
+PINECONE_API_KEY=your_pinecone_api_key
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
----
-
-## ▶️ Run the Application
+### 4️⃣ Index Medical Documents
 
 ```bash
-streamlit run app.py
+python store_index.py
 ```
 
-Open your browser at:
+### 5️⃣ Run the Application
+
+```bash
+python app.py
+```
+
+Open in browser:
 
 ```
-http://localhost:8501
+http://localhost:8080
 ```
 
 ---
 
-## 💬 Example Use Cases
+## 📌 Example Query
 
-* Understanding symptoms like fever, headache, cough
-* General disease information (diabetes, hypertension, flu, etc.)
-* Medication awareness (usage & precautions)
-* Wellness tips and lifestyle guidance
+> *What are the common symptoms of type 2 diabetes?*
 
----
-
-## 🔒 Safety & Ethics
-
-* No medical diagnosis is claimed
-* Encourages professional consultation
-* Avoids emergency decision-making
-* Designed with responsible AI guidelines
+✔ Retrieved from medical PDFs
+✔ Answered in clear bullet points
+✔ No hallucinated content
 
 ---
 
-## 📌 Future Enhancements
+## 🔮 Future Improvements
 
-* 🧾 Medical report upload & summarization
-* 🗣️ Voice-based interaction
-* 🌍 Multi-language support
-* 🧠 Personal health history tracking
-* 🔗 Doctor & hospital recommendation system
-
----
-
-## 👨‍💻 Contributors
-
-* **Developer**: Dev Saxena
+* 📚 Source citation with page numbers
+* 💾 Chat memory support
+* 🔄 Streaming responses
+* 🧠 Domain-specific biomedical embeddings
+* 🧩 LangGraph multi-agent workflow
 
 ---
 
-## 📜 License
+## 📄 Disclaimer
 
-This project is licensed under the **MIT License**.
-
----
-
-## ⭐ Acknowledgements
-
-* OpenAI
-* Streamlit
-* LangChain / LangGraph community
+This chatbot is for **educational purposes only** and is **not a substitute for professional medical advice**. Always consult a qualified healthcare provider for medical concerns.
 
 ---
 
-If you find this project helpful, don’t forget to ⭐ the repository!
+## 👤 Author
+
+**Dev Saxena**
+AI / ML & Software Development Enthusiast
+
+---
+
+⭐ If you find this project useful, consider giving it a star!
