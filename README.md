@@ -47,23 +47,8 @@ HealthyMate/
 ├── LICENSE                 # License file
 ├── README.md               # Project documentation
 └── readme.md               # Backup / merged README
-```
 
-HealthyMate/
-│
-├── app.py                  # Main Streamlit application
-├── chatbot/                # Chatbot logic
-│   ├── prompts.py          # System & medical prompts
-│   ├── model.py            # LLM initialization
-│   └── graph.py            # LangGraph flow
-│
-├── data/                   # Medical knowledge / embeddings
-├── utils/                  # Helper functions
-├── requirements.txt        # Dependencies
-├── .env                    # API keys (not committed)
-└── README.md               # Project documentation
 
-````
 
 ---
 
